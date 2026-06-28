@@ -772,14 +772,29 @@
         if (item.heart) heartSound();
         if (item.finalTone) finalSound();
 
-        if (item.action) {
-          doAction(item.action);
-          continue;
-        }
+       if (item.action) {
 
-        const speed = item.speed || NORMAL;
+  doAction(item.action);
 
-        for (const char of item.text) {
+  continue;
+
+}
+
+
+
+if (!item.text) {
+
+  continue;
+
+}
+
+
+
+const speed = item.speed || NORMAL;
+
+
+
+for (const char of item.text) {
           terminal.textContent += char;
           terminal.scrollTop = terminal.scrollHeight;
           tickSound(char);
