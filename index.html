@@ -29,10 +29,13 @@
       overflow: hidden;
     }
 
-    .noise {
+    .noise, .scanline {
       position: fixed;
       inset: 0;
       pointer-events: none;
+    }
+
+    .noise {
       opacity: 0.045;
       background-image:
         linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px),
@@ -42,9 +45,6 @@
     }
 
     .scanline {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
       background: linear-gradient(
         to bottom,
         transparent,
@@ -118,7 +118,9 @@
       min-height: 50px;
       display: flex;
       align-items: center;
+      gap: 10px;
       margin-top: 12px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -144,7 +146,6 @@
     .hint {
       color: var(--dim);
       font-size: 12px;
-      margin-left: 12px;
     }
 
     .shake-hard {
@@ -169,9 +170,7 @@
       100% { transform: translate(0, 0) rotate(0deg); }
     }
 
-    .red-flash {
-      animation: redFlash 0.45s linear 4;
-    }
+    .red-flash { animation: redFlash 0.45s linear 4; }
 
     @keyframes redFlash {
       0%, 100% { background: rgba(5, 3, 8, 0.58); }
@@ -183,6 +182,39 @@
       box-shadow:
         0 0 28px rgba(255, 156, 204, 0.3),
         inset 0 0 42px rgba(255, 156, 204, 0.1);
+    }
+
+    .start-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(2, 2, 4, 0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .start-card {
+      width: min(560px, 100%);
+      border: 1px solid rgba(255, 79, 163, 0.45);
+      box-shadow: 0 0 26px rgba(255, 79, 163, 0.25);
+      padding: 24px;
+      text-align: center;
+      background: rgba(5, 3, 8, 0.75);
+    }
+
+    .start-card h1 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      font-weight: normal;
+      text-shadow: 0 0 10px rgba(255, 79, 163, 0.8);
+    }
+
+    .start-card p {
+      color: var(--dim);
+      line-height: 1.6;
+      margin: 0 0 18px;
     }
 
     @media (max-width: 520px) {
@@ -202,17 +234,26 @@
   <div class="noise"></div>
   <div class="scanline"></div>
 
+  <div id="startOverlay" class="start-overlay">
+    <div class="start-card">
+      <h1>E.V.A.</h1>
+      <p>Закрытый протокол эмоциональной верификации.<br>Для полного эффекта лучше включить звук.</p>
+      <button id="startBtn">[ ЗАПУСТИТЬ ПРОТОКОЛ ]</button>
+    </div>
+  </div>
+
   <main class="screen">
     <section class="terminal-wrap" id="wrap">
       <div class="topbar">
         <span id="systemName">E.V.A. // режим анализа: нейтральный</span>
-        <span>v0.3</span>
+        <span>v0.4 audio</span>
       </div>
 
       <div id="terminal" class="cursor"></div>
 
       <div class="controls">
         <button id="nextBtn" class="hidden">[ ПРОДОЛЖИТЬ ]</button>
+        <button id="soundBtn">[ ЗВУК: ВКЛ ]</button>
         <span id="hint" class="hint hidden">или нажми Enter</span>
       </div>
     </section>
@@ -224,14 +265,91 @@
     const hint = document.getElementById("hint");
     const wrap = document.getElementById("wrap");
     const systemName = document.getElementById("systemName");
+    const startOverlay = document.getElementById("startOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const soundBtn = document.getElementById("soundBtn");
 
     let currentStep = 0;
     let isTyping = false;
+    let started = false;
 
     const NORMAL = 54;
     const FAST = 25;
     const SLOW = 88;
     const VERY_SLOW = 125;
+
+    let audioCtx = null;
+    let soundEnabled = true;
+    let lastTick = 0;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    function tone(freq, duration, type = "sine", volume = 0.035) {
+      if (!soundEnabled || !audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type;
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(volume, audioCtx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration + 0.02);
+    }
+
+    function tickSound(char) {
+      if (!soundEnabled || !audioCtx) return;
+      const now = performance.now();
+      if (now - lastTick < 45) return;
+      lastTick = now;
+
+      if (char === " " || char === "\n") return;
+
+      const freq = 520 + Math.random() * 90;
+      tone(freq, 0.018, "square", 0.006);
+    }
+
+    function softBeep() {
+      tone(760, 0.08, "sine", 0.025);
+      setTimeout(() => tone(980, 0.09, "sine", 0.018), 80);
+    }
+
+    function errorSound() {
+      tone(120, 0.18, "sawtooth", 0.07);
+      setTimeout(() => tone(90, 0.22, "sawtooth", 0.065), 90);
+      setTimeout(() => tone(180, 0.12, "square", 0.045), 180);
+    }
+
+    function heartSound() {
+      tone(392, 0.18, "sine", 0.035);
+      setTimeout(() => tone(523, 0.24, "sine", 0.03), 220);
+      setTimeout(() => tone(659, 0.34, "sine", 0.024), 520);
+    }
+
+    function finalSound() {
+      tone(440, 0.35, "sine", 0.026);
+      setTimeout(() => tone(554, 0.4, "sine", 0.024), 360);
+      setTimeout(() => tone(659, 0.55, "sine", 0.022), 760);
+    }
+
+    soundBtn.addEventListener("click", () => {
+      initAudio();
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? "[ ЗВУК: ВКЛ ]" : "[ ЗВУК: ВЫКЛ ]";
+      if (soundEnabled) softBeep();
+    });
 
     const steps = [
       [
@@ -240,7 +358,7 @@
         { pause: 1800 },
         { text: "Инициализация закрытого протокола...\n\n", speed: NORMAL },
         { pause: 1200 },
-        { text: "E.V.A. v0.3\n", speed: SLOW },
+        { text: "E.V.A. v0.4\n", speed: SLOW, beep: true },
         { text: "Emotional Verification Algorithm\n", speed: NORMAL },
         { text: "Алгоритм эмоциональной верификации\n\n", speed: NORMAL },
         { pause: 1400 },
@@ -248,19 +366,18 @@
         { pause: 1600 },
         { text: "Подключение к эмоциональному архиву...\n", speed: NORMAL },
         { pause: 1800 },
-        { text: "Соединение установлено.\n\n", speed: NORMAL },
+        { text: "Соединение установлено.\n\n", speed: NORMAL, beep: true },
         { pause: 1000 },
         { text: "Запуск комплексного анализа личности.\n", speed: NORMAL },
         { text: "Идентификатор объекта пока не установлен.\n\n", speed: NORMAL },
         { pause: 1300 },
-
         { text: "Поиск владельца...\n\n", speed: NORMAL },
         { pause: 1400 },
         { text: "Подключение к мировому архиву...\n", speed: NORMAL },
         { pause: 1700 },
         { text: "Получено записей:\n\n", speed: NORMAL },
         { pause: 900 },
-        { text: "8 239 441 902\n\n", speed: SLOW },
+        { text: "8 239 441 902\n\n", speed: SLOW, beep: true },
         { pause: 1600 },
         { text: "Индексация...\n", speed: NORMAL },
         { pause: 900 },
@@ -272,7 +389,7 @@
         { pause: 1800 },
         { text: "██████████████░░ 89%\n", speed: FAST },
         { pause: 2300 },
-        { text: "████████████████ 100%\n\n", speed: FAST },
+        { text: "████████████████ 100%\n\n", speed: FAST, beep: true },
         { pause: 1800 },
         { text: "Поиск совпадений...\n\n", speed: NORMAL },
         { pause: 2600 },
@@ -282,7 +399,7 @@
         { pause: 1500 },
         { text: "...\n\n", speed: VERY_SLOW },
         { pause: 2500 },
-        { text: "Совпадение найдено.\n\n", speed: SLOW },
+        { text: "Совпадение найдено.\n\n", speed: SLOW, beep: true },
         { pause: 1000 },
         { text: "Имя:\n", speed: NORMAL },
         { pause: 900 },
@@ -309,7 +426,7 @@
         { pause: 800 },
         { text: "Уровень зависимости от Кореаны:\n", speed: NORMAL },
         { pause: 700 },
-        { text: "████████████████ 100%\n\n", speed: FAST },
+        { text: "████████████████ 100%\n\n", speed: FAST, beep: true },
         { pause: 1100 },
         { text: "Любимая музыка...\n", speed: NORMAL },
         { pause: 1100 },
@@ -321,12 +438,11 @@
         { pause: 1000 },
         { text: "Проверка...\n\n", speed: NORMAL },
         { pause: 1500 },
-        { text: "Обнаружено несоответствие.\n", speed: NORMAL },
+        { text: "Обнаружено несоответствие.\n", speed: NORMAL, beep: true },
         { pause: 900 },
         { text: "Предположительно:\n", speed: NORMAL },
         { pause: 900 },
         { text: "рэп.\n\n", speed: SLOW },
-
         { pause: 1500 },
         { text: "Анализ самоописания...\n\n", speed: NORMAL },
         { pause: 1000 },
@@ -356,8 +472,7 @@
         { pause: 1000 },
         { text: "Обнаружено:\n", speed: NORMAL },
         { pause: 1400 },
-        { text: "безумно красивый.\n\n", speed: VERY_SLOW },
-
+        { text: "безумно красивый.\n\n", speed: VERY_SLOW, beep: true },
         { pause: 1400 },
         { text: "Поиск повторяющихся воспоминаний...\n\n", speed: NORMAL },
         { pause: 1000 },
@@ -379,7 +494,7 @@
         { pause: 350 },
         { text: "✓ белые трусики\n\n", speed: NORMAL },
         { pause: 2100 },
-        { text: "Обнаружен неизвестный повторяющийся объект.\n\n", speed: SLOW },
+        { text: "Обнаружен неизвестный повторяющийся объект.\n\n", speed: SLOW, beep: true },
         { pause: 3000 },
         { text: "Попытка классификации...\n", speed: NORMAL },
         { pause: 2400 },
@@ -399,7 +514,7 @@
         { pause: 2800 },
         { text: "Название:\n", speed: NORMAL },
         { pause: 1600 },
-        { text: "ЕВКА\n\n", speed: VERY_SLOW },
+        { text: "ЕВКА\n\n", speed: VERY_SLOW, beep: true },
         { pause: 1700 },
         { text: "Повторный анализ...\n", speed: NORMAL },
         { pause: 1600 },
@@ -416,7 +531,7 @@
         { pause: 1100 },
         { text: "Внутренние мемы...\n\n", speed: NORMAL },
         { pause: 1000 },
-        { text: "Обнаружены.\n\n", speed: SLOW },
+        { text: "Обнаружены.\n\n", speed: SLOW, beep: true },
         { pause: 600 },
         { text: "✓ ПА ТРОНУ\n", speed: NORMAL },
         { pause: 300 },
@@ -457,7 +572,6 @@
         { text: "Не удалось.\n\n", speed: NORMAL },
         { pause: 1400 },
         { text: "Вероятно,\nэто отдельный язык,\nпонятный только двум людям.\n\n", speed: SLOW },
-
         { pause: 1800 },
         { text: "Запуск углублённого эмоционального анализа...\n\n", speed: NORMAL },
         { pause: 1400 },
@@ -510,7 +624,7 @@
         { pause: 1500 },
         { text: "...\n\n", speed: VERY_SLOW },
         { pause: 2200 },
-        { text: "любовь.\n\n", speed: VERY_SLOW },
+        { text: "любовь.\n\n", speed: VERY_SLOW, heart: true },
         { pause: 2300 },
         { text: "Проверка гипотезы...\n\n", speed: NORMAL },
         { pause: 900 },
@@ -520,7 +634,7 @@
         { pause: 1000 },
         { text: "████████████░░░░ 81%\n", speed: FAST },
         { pause: 1300 },
-        { text: "████████████████ 100%\n\n", speed: FAST },
+        { text: "████████████████ 100%\n\n", speed: FAST, beep: true },
         { pause: 1900 },
         { text: "Гипотеза подтверждена.\n\n", speed: SLOW },
         { pause: 1100 },
@@ -536,6 +650,7 @@
         { pause: 3500 },
         { action: "soften" },
         { action: "heartMode" },
+        { sound: "heart" },
         { text: "Привет, Масюш.\n\n", speed: VERY_SLOW },
         { pause: 2200 },
         { text: "Похоже,\n", speed: SLOW },
@@ -551,7 +666,7 @@
         { pause: 2700 },
         { text: "не умеет объяснять себя.\n\n", speed: SLOW },
         { pause: 7000 },
-        { text: "Она просто случается.\n", speed: VERY_SLOW },
+        { text: "Она просто случается.\n", speed: VERY_SLOW, heart: true },
         { pause: 7600 },
         { wait: true, label: "[ ПРОЧИТАТЬ ФИНАЛЬНОЕ ПРИЗНАНИЕ ]" }
       ],
@@ -576,10 +691,9 @@
         { text: "С твоей верой в лучшее\nи самое хорошее.\n\n", speed: NORMAL },
         { pause: 1100 },
         { text: "Со всем тем,\nза что я каждый день\nвлюбляюсь в тебя ещё немного сильнее.\n\n", speed: SLOW },
-
         { pause: 2600 },
         { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST },
-        { text: "ФИНАЛЬНЫЙ ОТЧЁТ\n\n", speed: VERY_SLOW },
+        { text: "ФИНАЛЬНЫЙ ОТЧЁТ\n\n", speed: VERY_SLOW, beep: true },
         { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST },
         { pause: 1700 },
         { text: "Объект исследования:\n\n", speed: NORMAL },
@@ -596,9 +710,8 @@
         { pause: 2500 },
         { text: "Статус:\n\n", speed: NORMAL },
         { pause: 3000 },
-        { text: "Истинная любовь.\n\n", speed: VERY_SLOW },
+        { text: "Истинная любовь.\n\n", speed: VERY_SLOW, finalTone: true },
         { pause: 8200 },
-
         { text: "Примечание системы.\n\n", speed: NORMAL },
         { pause: 1300 },
         { text: "За всё время анализа\nне обнаружено ни одной причины,\nпо которой Евка должна была бы\nполюбить тебя настолько сильно.\n\n", speed: NORMAL },
@@ -611,7 +724,7 @@
         { pause: 2200 },
         { text: "Соединение завершено.\n\n", speed: NORMAL },
         { pause: 1400 },
-        { text: "♥\n\nEVA.exe\n\n", speed: VERY_SLOW },
+        { text: "♥\n\nEVA.exe\n\n", speed: VERY_SLOW, heart: true },
         { pause: 6000 },
         { text: "P.S.\n\n", speed: VERY_SLOW },
         { pause: 1400 },
@@ -624,6 +737,7 @@
     }
 
     function triggerError() {
+      errorSound();
       wrap.classList.add("shake-hard", "red-flash");
       setTimeout(() => wrap.classList.remove("shake-hard", "red-flash"), 1800);
     }
@@ -652,7 +766,12 @@
           continue;
         }
 
+        if (item.sound === "heart") heartSound();
         if (item.error) triggerError();
+        if (item.beep) softBeep();
+        if (item.heart) heartSound();
+        if (item.finalTone) finalSound();
+
         if (item.action) {
           doAction(item.action);
           continue;
@@ -663,6 +782,7 @@
         for (const char of item.text) {
           terminal.textContent += char;
           terminal.scrollTop = terminal.scrollHeight;
+          tickSound(char);
           await sleep(speed);
         }
 
@@ -692,7 +812,13 @@
       if (event.key === "Enter") nextStep();
     });
 
-    typeSequence(steps[currentStep]);
+    startBtn.addEventListener("click", () => {
+      initAudio();
+      softBeep();
+      startOverlay.style.display = "none";
+      started = true;
+      typeSequence(steps[currentStep]);
+    });
   </script>
 </body>
 </html>
