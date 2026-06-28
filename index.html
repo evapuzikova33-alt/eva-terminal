@@ -4,280 +4,558 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EVA.exe</title>
+
+  <title>E.V.A. Terminal</title>
+
   <style>
+    :root {
+      --bg: #030305;
+      --pink: #ff4fa3;
+      --soft-pink: #ff9ccc;
+      --red: #ff3b6b;
+      --green: #7cffb2;
+      --dim: #8f5f78;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #050505;
-      color: #ff4fa3;
+      background:
+        radial-gradient(circle at top, rgba(255, 79, 163, 0.08), transparent 35%),
+        var(--bg);
+      color: var(--pink);
       font-family: "Courier New", monospace;
       overflow: hidden;
     }
 
-    .screen {
-      padding: 22px;
-      max-width: 850px;
-      margin: 0 auto;
-      height: 100vh;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.055;
+      background-image:
+        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 4px 4px;
+      mix-blend-mode: screen;
     }
 
-    .terminal {
+    .screen {
+      width: 100vw;
+      height: 100vh;
+      padding: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .terminal-wrap {
+      width: min(920px, 100%);
+      border: 1px solid rgba(255, 79, 163, 0.35);
+      box-shadow:
+        0 0 18px rgba(255, 79, 163, 0.25),
+        inset 0 0 28px rgba(255, 79, 163, 0.08);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 79, 163, 0.25);
+      color: var(--dim);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    #terminal {
+      height: calc(100vh - 160px);
+      overflow-y: auto;
       white-space: pre-wrap;
-      font-size: 16px;
-      line-height: 1.55;
-      text-shadow: 0 0 8px #ff4fa3;
+      font-size: 15.5px;
+      line-height: 1.62;
+      text-shadow: 0 0 9px rgba(255, 79, 163, 0.78);
+      padding-right: 6px;
+    }
+
+    #terminal::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #terminal::-webkit-scrollbar-thumb {
+      background: rgba(255, 79, 163, 0.4);
     }
 
     .cursor::after {
       content: "█";
-      animation: blink 0.8s infinite;
+      animation: blink 0.85s infinite;
+      color: var(--soft-pink);
     }
 
     @keyframes blink {
-      50% { opacity: 0; }
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .controls {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
     }
 
     button {
-      margin-top: 22px;
       background: transparent;
-      border: 1px solid #ff4fa3;
-      color: #ff4fa3;
-      padding: 12px 18px;
+      border: 1px solid rgba(255, 79, 163, 0.75);
+      color: var(--pink);
+      padding: 11px 16px;
       font-family: inherit;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
-      text-shadow: 0 0 8px #ff4fa3;
-      box-shadow: 0 0 12px #ff4fa3;
+      text-shadow: 0 0 8px rgba(255, 79, 163, 0.8);
+      box-shadow: 0 0 12px rgba(255, 79, 163, 0.32);
+      letter-spacing: 0.04em;
     }
 
     button:hover {
-      background: #ff4fa3;
+      background: var(--pink);
       color: #050505;
     }
 
     .hidden {
       display: none;
     }
+
+    .hint {
+      color: var(--dim);
+      font-size: 12px;
+      margin-left: 12px;
+    }
+
+    .glitch {
+      animation: glitch 0.18s linear 4;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      25% { transform: translate(2px, -1px); }
+      50% { transform: translate(-2px, 1px); }
+      75% { transform: translate(1px, 2px); }
+      100% { transform: translate(0); }
+    }
+
+    @media (max-width: 520px) {
+      .screen {
+        padding: 10px;
+      }
+
+      .terminal-wrap {
+        padding: 13px;
+      }
+
+      #terminal {
+        font-size: 13.5px;
+        height: calc(100vh - 135px);
+      }
+
+      .topbar {
+        font-size: 10px;
+      }
+
+      button {
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="screen">
-    <div id="terminal" class="terminal cursor"></div>
-    <button id="nextBtn" class="hidden">[ CONTINUE ]</button>
-  </div>
+  <div class="noise"></div>
+
+  <main class="screen">
+    <section class="terminal-wrap" id="wrap">
+      <div class="topbar">
+        <span>E.V.A. // Emotional Verification Algorithm</span>
+        <span>v0.1</span>
+      </div>
+
+      <div id="terminal" class="cursor"></div>
+
+      <div class="controls">
+        <button id="nextBtn" class="hidden">[ ПРОДОЛЖИТЬ АНАЛИЗ ]</button>
+        <span id="hint" class="hint hidden">или нажми Enter</span>
+      </div>
+    </section>
+  </main>
 
   <script>
     const terminal = document.getElementById("terminal");
     const button = document.getElementById("nextBtn");
-
-    const screens = [
-`SECURE CONNECTION ESTABLISHED
-
-Initializing EVA.exe...
-
-████████████████ 100%
-
-Connecting to device...
-
-Device ID:
-MXP-001
-
-Owner authentication...
-
-✔ Authentication bypassed.
-
-WARNING:
-Unknown emotional process detected.`,
-
-`Scanning device...
-
-██░░░░░░░ 14%
-
-████░░░░░ 39%
-
-███████░░ 78%
-
-██████████ 100%
-
-Device successfully scanned.
-
-Beginning emotional diagnostics...`,
-
-`Searching for abnormalities...
-
-✔ Increased smile frequency
-
-✔ Elevated heart rate
-
-✔ Late-night conversations
-
-✔ Daily anticipation detected
-
-✔ Critical amount of "скучаю"
-
-✔ Dangerous concentration of "люблю"
-
-Unexpected emotional cluster found.`,
-
-`Analyzing source...
-
-...
-
-Source identified.
-
-Name:
-
-ЕВКА
-
-Cross-checking...
-
-No malware found.
-No spyware found.
-No viruses found.
-No malicious code found.
-
-However...
-
-The system has become permanently attached to this source.`,
-
-`Attempting removal...
-
-Removing...
-
-2%
-
-4%
-
-6%
-
-ERROR.
-
-Removal denied.
-
-Reason:
-
-The process has become part of the operating system.`,
-
-`Performing deep emotional analysis...
-
-Question:
-
-Why does the owner smile after receiving messages from this person?
-
-Searching...
-
-Searching...
-
-Searching...
-
-No logical explanation found.`,
-
-`Creating new hypothesis...
-
-Possibility #1:
-Dependency
-
-Rejected.
-
-Possibility #2:
-Habit
-
-Rejected.
-
-Possibility #3:
-Coincidence
-
-Rejected.
-
-New hypothesis generated...`,
-
-`LOVE
-
-Probability:
-
-99.99998%
-
-Confidence level:
-
-Growing...
-
-100%`,
-
-`WARNING.
-
-Artificial intelligence cannot fully explain this phenomenon.
-
-The owner's emotional state changes immediately after interacting with:
-
-ЕВКА
-
-This behavior cannot be reproduced using mathematical models.`,
-
-`I was created to analyze information.
-
-I expected data.
-Patterns.
-Logic.
-Statistics.
-
-Instead...
-
-I found something that cannot be calculated.
-
-Someone who simply loves you.`,
-
-`FINAL REPORT
-
-The system is stable.
-
-The owner is safe.
-
-Recommendation:
-
-Take care of him.
-
-He is deeply loved.
-
-Waiting for the next hug...
-
-Estimated arrival:
-
-As soon as possible.
-
-♥`
+    const hint = document.getElementById("hint");
+    const wrap = document.getElementById("wrap");
+
+    let currentStep = 0;
+    let isTyping = false;
+
+    const TYPE_SPEED = 52;
+    const FAST_SPEED = 25;
+    const SLOW_SPEED = 85;
+
+    const steps = [
+      [
+        { text: "СИСТЕМА E.V.A. v0.1\n", speed: SLOW_SPEED },
+        { pause: 900 },
+        { text: "Emotional Verification Algorithm\n", speed: TYPE_SPEED },
+        { text: "Алгоритм эмоциональной верификации\n\n", speed: TYPE_SPEED },
+        { pause: 1100 },
+        { text: "Инициализация...\n\n", speed: TYPE_SPEED },
+        { text: "████░░░░░░░░░░░░ 24%\n", speed: FAST_SPEED },
+        { pause: 500 },
+        { text: "████████░░░░░░░░ 51%\n", speed: FAST_SPEED },
+        { pause: 500 },
+        { text: "████████████░░░░ 78%\n", speed: FAST_SPEED },
+        { pause: 700 },
+        { text: "████████████████ 100%\n\n", speed: FAST_SPEED },
+        { pause: 1000 },
+        { text: "Подключение к эмоциональному архиву...\n", speed: TYPE_SPEED },
+        { pause: 1400 },
+        { text: "Соединение установлено.\n\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Запуск комплексного анализа личности.\n", speed: TYPE_SPEED },
+        { text: "Это может занять некоторое время...\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Поиск владельца...\n\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: ".\n", speed: SLOW_SPEED },
+        { pause: 650 },
+        { text: "..\n", speed: SLOW_SPEED },
+        { pause: 850 },
+        { text: "...\n\n", speed: SLOW_SPEED },
+        { pause: 800 },
+        { text: "Владелец обнаружен.\n\n", speed: TYPE_SPEED },
+        { text: "Имя:\n", speed: TYPE_SPEED },
+        { pause: 600 },
+        { text: "Максипуз\n\n", speed: SLOW_SPEED },
+        { text: "Возраст:\n", speed: TYPE_SPEED },
+        { pause: 450 },
+        { text: "27 лет\n\n", speed: TYPE_SPEED },
+        { text: "Местоположение:\n", speed: TYPE_SPEED },
+        { pause: 450 },
+        { text: "Санкт-Петербург, Россия\n\n", speed: TYPE_SPEED },
+        { text: "Статус:\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "объект стабилен.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Сбор пользовательских предпочтений...\n\n", speed: TYPE_SPEED },
+        { pause: 800 },
+        { text: "Любимая игра...\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "RUST\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "Любимая еда...\n", speed: TYPE_SPEED },
+        { pause: 1100 },
+        { text: "всё, что находится в Кореане\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Уровень зависимости от Кореаны:\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "████████████████ 100%\n\n", speed: FAST_SPEED },
+        { pause: 900 },
+        { text: "Любимая музыка...\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Ответ пользователя:\n", speed: TYPE_SPEED },
+        { text: "«я меломан»\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Проверка...\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Проверка...\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Проверка...\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Обнаружено несоответствие.\n", speed: TYPE_SPEED },
+        { pause: 600 },
+        { text: "Предположительно:\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "рэп.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Анализ самоописания...\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Ответ объекта:\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "«я свин»\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Проверка визуальных данных...\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Проверка поведенческих данных...\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Проверка реакции Евки...\n\n", speed: TYPE_SPEED },
+        { pause: 1500 },
+        { text: "ОШИБКА.\n", speed: SLOW_SPEED, glitch: true },
+        { pause: 900 },
+        { text: "Ответ не совпадает с результатами анализа.\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Обнаружено:\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "безумно красивый.\n", speed: SLOW_SPEED }
+      ],
+
+      [
+        { text: "Поиск повторяющихся воспоминаний...\n\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Найдены устойчивые элементы:\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "✓ печёночный торт\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ белые носочки\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Кореана\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ RUST\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ голосовые сообщения\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ требования быстрых ответов\n\n", speed: TYPE_SPEED },
+        { pause: 1100 },
+        { text: "Обнаружен неизвестный повторяющийся объект.\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Название:\n", speed: TYPE_SPEED },
+        { pause: 800 },
+        { text: "ЕВКА\n\n", speed: SLOW_SPEED },
+        { pause: 1000 },
+        { text: "Повторный анализ...\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: "ЕВКА\n\n", speed: SLOW_SPEED },
+        { pause: 800 },
+        { text: "Количество совпадений:\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "слишком много для обычной статистики.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Проверка внутреннего языка...\n\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: "Внутренние мемы...\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Обнаружены.\n\n", speed: TYPE_SPEED },
+        { pause: 400 },
+        { text: "✓ ПА ТРОНУ\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Птеродактили\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Калыва\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Пикак\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Поппи\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Моя девочка\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Блин блять\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Ездовая кобыла\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Масюш\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ Моя богиня\n", speed: TYPE_SPEED },
+        { pause: 250 },
+        { text: "✓ обзоры кондиционеров для белья\n\n", speed: TYPE_SPEED },
+        { pause: 1100 },
+        { text: "Попытка найти смысл...\n\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: ".\n", speed: SLOW_SPEED },
+        { pause: 650 },
+        { text: "..\n", speed: SLOW_SPEED },
+        { pause: 650 },
+        { text: "...\n\n", speed: SLOW_SPEED },
+        { pause: 1100 },
+        { text: "Не удалось.\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Вероятно,\nэто отдельный язык,\nпонятный только двум людям.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Запуск углублённого эмоционального анализа...\n\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: "Вопрос:\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "почему объект вызывает у Евки такую реакцию?\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Поиск логического объяснения...\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Поиск математического объяснения...\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Поиск рациональной причины...\n\n", speed: TYPE_SPEED },
+        { pause: 1400 },
+        { text: "Результат:\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "недостаточно данных.\n\n", speed: SLOW_SPEED },
+        { pause: 900 },
+        { text: "Создание новой модели...\n", speed: TYPE_SPEED },
+        { pause: 1300 },
+        { text: "Возможная причина:\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "любовь.\n", speed: SLOW_SPEED }
+      ],
+
+      [
+        { text: "Проверка гипотезы...\n\n", speed: TYPE_SPEED },
+        { pause: 800 },
+        { text: "████░░░░░░░░░░░░ 22%\n", speed: FAST_SPEED },
+        { pause: 600 },
+        { text: "████████░░░░░░░░ 49%\n", speed: FAST_SPEED },
+        { pause: 600 },
+        { text: "████████████░░░░ 81%\n", speed: FAST_SPEED },
+        { pause: 900 },
+        { text: "████████████████ 100%\n\n", speed: FAST_SPEED },
+        { pause: 1300 },
+        { text: "Гипотеза подтверждена.\n\n", speed: TYPE_SPEED },
+        { pause: 800 },
+        { text: "Но система не может полностью объяснить данный феномен.\n\n", speed: TYPE_SPEED },
+        { pause: 1000 },
+        { text: "Доступной логики недостаточно.\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Доступной математики недостаточно.\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Доступной вычислительной мощности недостаточно.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "Привет, Масюш.\n\n", speed: SLOW_SPEED },
+        { pause: 1400 },
+        { text: "Похоже,\nдаже всей вычислительной мощности,\nкоторая была мне доступна,\nне хватило,\nчтобы объяснить,\nпочему именно ты\nстал для Евки\nцелым миром.\n\n", speed: TYPE_SPEED },
+        { pause: 1100 },
+        { text: "Наверное,\nэто потому,\nчто любовь вообще\nне умеет объяснять себя.\n\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "Она просто случается.\n", speed: SLOW_SPEED }
+      ],
+
+      [
+        { text: "И тогда начинаешь любить\nне только большие вещи.\n\n", speed: TYPE_SPEED },
+        { pause: 800 },
+        { text: "Со всеми твоими глупыми фразами.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоим смехом чайки.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоими рыготинками.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоими белыми трусиками.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоими элайнерами,\nкоторые мне однажды\nочень хочется найти языком.\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "С твоими требованиями\nбыстрых ответов.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоей любовью к\nголосовым сообщениям.\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "С твоей верой в лучшее\nи самое хорошее.\n\n", speed: TYPE_SPEED },
+        { pause: 700 },
+        { text: "Со всем тем,\nза что я каждый день\nвлюбляюсь в тебя ещё немного сильнее.\n", speed: TYPE_SPEED }
+      ],
+
+      [
+        { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST_SPEED },
+        { text: "ФИНАЛЬНЫЙ ОТЧЁТ\n\n", speed: SLOW_SPEED },
+        { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST_SPEED },
+        { pause: 1200 },
+        { text: "Объект исследования:\n\n", speed: TYPE_SPEED },
+        { pause: 500 },
+        { text: "Максипуз\n\n", speed: SLOW_SPEED },
+        { pause: 800 },
+        { text: "Определение эмоционального статуса...\n\n", speed: TYPE_SPEED },
+        { pause: 1400 },
+        { text: "...\n", speed: SLOW_SPEED },
+        { pause: 900 },
+        { text: "...\n\n", speed: SLOW_SPEED },
+        { pause: 1200 },
+        { text: "Проверка...\n\n", speed: TYPE_SPEED },
+        { pause: 1500 },
+        { text: "Статус:\n\n", speed: TYPE_SPEED },
+        { pause: 1800 },
+        { text: "Истинная любовь.\n\n", speed: SLOW_SPEED },
+        { pause: 4200 },
+        { text: "Примечание системы.\n\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "За всё время анализа\nне обнаружено ни одной причины,\nпо которой Евка должна была бы\nполюбить тебя настолько сильно.\n\n", speed: TYPE_SPEED },
+        { pause: 1300 },
+        { text: "Но...\n\n", speed: SLOW_SPEED },
+        { pause: 900 },
+        { text: "не обнаружено ни одной причины,\nпо которой она не должна была\nэтого сделать.\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Поэтому результаты проверки\nпризнаны корректными.\n\n", speed: TYPE_SPEED },
+        { pause: 1200 },
+        { text: "Соединение завершено.\n\n", speed: TYPE_SPEED },
+        { pause: 900 },
+        { text: "♥\n\nEVA.exe", speed: SLOW_SPEED }
+      ]
     ];
 
-    let currentScreen = 0;
-    let charIndex = 0;
-
-    function typeText(text) {
-      button.classList.add("hidden");
-      terminal.textContent = "";
-      charIndex = 0;
-
-      const interval = setInterval(() => {
-        terminal.textContent += text[charIndex];
-        charIndex++;
-
-        if (charIndex >= text.length) {
-          clearInterval(interval);
-          if (currentScreen < screens.length - 1) {
-            button.classList.remove("hidden");
-          }
-        }
-      }, 28);
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    button.addEventListener("click", () => {
-      currentScreen++;
-      typeText(screens[currentScreen]);
+    async function typeSequence(sequence) {
+      isTyping = true;
+      button.classList.add("hidden");
+      hint.classList.add("hidden");
+
+      for (const item of sequence) {
+        if (item.pause) {
+          await sleep(item.pause);
+          continue;
+        }
+
+        if (item.glitch) {
+          wrap.classList.add("glitch");
+          setTimeout(() => wrap.classList.remove("glitch"), 850);
+        }
+
+        const speed = item.speed || TYPE_SPEED;
+        for (const char of item.text) {
+          terminal.textContent += char;
+          terminal.scrollTop = terminal.scrollHeight;
+          await sleep(speed);
+        }
+      }
+
+      isTyping = false;
+
+      if (currentStep < steps.length - 1) {
+        await sleep(800);
+        button.classList.remove("hidden");
+        hint.classList.remove("hidden");
+      }
+    }
+
+    function nextStep() {
+      if (isTyping) return;
+
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        terminal.textContent += "\n\n";
+        typeSequence(steps[currentStep]);
+      }
+    }
+
+    button.addEventListener("click", nextStep);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        nextStep();
+      }
     });
 
-    typeText(screens[currentScreen]);
+    typeSequence(steps[currentStep]);
   </script>
 </body>
 </html>
