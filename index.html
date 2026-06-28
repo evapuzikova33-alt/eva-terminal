@@ -1,0 +1,284 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EVA.exe</title>
+  <style>
+    body {
+      margin: 0;
+      background: #050505;
+      color: #ff4fa3;
+      font-family: "Courier New", monospace;
+      overflow: hidden;
+    }
+
+    .screen {
+      padding: 22px;
+      max-width: 850px;
+      margin: 0 auto;
+      height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .terminal {
+      white-space: pre-wrap;
+      font-size: 16px;
+      line-height: 1.55;
+      text-shadow: 0 0 8px #ff4fa3;
+    }
+
+    .cursor::after {
+      content: "█";
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    button {
+      margin-top: 22px;
+      background: transparent;
+      border: 1px solid #ff4fa3;
+      color: #ff4fa3;
+      padding: 12px 18px;
+      font-family: inherit;
+      font-size: 16px;
+      cursor: pointer;
+      text-shadow: 0 0 8px #ff4fa3;
+      box-shadow: 0 0 12px #ff4fa3;
+    }
+
+    button:hover {
+      background: #ff4fa3;
+      color: #050505;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div id="terminal" class="terminal cursor"></div>
+    <button id="nextBtn" class="hidden">[ CONTINUE ]</button>
+  </div>
+
+  <script>
+    const terminal = document.getElementById("terminal");
+    const button = document.getElementById("nextBtn");
+
+    const screens = [
+`SECURE CONNECTION ESTABLISHED
+
+Initializing EVA.exe...
+
+████████████████ 100%
+
+Connecting to device...
+
+Device ID:
+MXP-001
+
+Owner authentication...
+
+✔ Authentication bypassed.
+
+WARNING:
+Unknown emotional process detected.`,
+
+`Scanning device...
+
+██░░░░░░░ 14%
+
+████░░░░░ 39%
+
+███████░░ 78%
+
+██████████ 100%
+
+Device successfully scanned.
+
+Beginning emotional diagnostics...`,
+
+`Searching for abnormalities...
+
+✔ Increased smile frequency
+
+✔ Elevated heart rate
+
+✔ Late-night conversations
+
+✔ Daily anticipation detected
+
+✔ Critical amount of "скучаю"
+
+✔ Dangerous concentration of "люблю"
+
+Unexpected emotional cluster found.`,
+
+`Analyzing source...
+
+...
+
+Source identified.
+
+Name:
+
+ЕВКА
+
+Cross-checking...
+
+No malware found.
+No spyware found.
+No viruses found.
+No malicious code found.
+
+However...
+
+The system has become permanently attached to this source.`,
+
+`Attempting removal...
+
+Removing...
+
+2%
+
+4%
+
+6%
+
+ERROR.
+
+Removal denied.
+
+Reason:
+
+The process has become part of the operating system.`,
+
+`Performing deep emotional analysis...
+
+Question:
+
+Why does the owner smile after receiving messages from this person?
+
+Searching...
+
+Searching...
+
+Searching...
+
+No logical explanation found.`,
+
+`Creating new hypothesis...
+
+Possibility #1:
+Dependency
+
+Rejected.
+
+Possibility #2:
+Habit
+
+Rejected.
+
+Possibility #3:
+Coincidence
+
+Rejected.
+
+New hypothesis generated...`,
+
+`LOVE
+
+Probability:
+
+99.99998%
+
+Confidence level:
+
+Growing...
+
+100%`,
+
+`WARNING.
+
+Artificial intelligence cannot fully explain this phenomenon.
+
+The owner's emotional state changes immediately after interacting with:
+
+ЕВКА
+
+This behavior cannot be reproduced using mathematical models.`,
+
+`I was created to analyze information.
+
+I expected data.
+Patterns.
+Logic.
+Statistics.
+
+Instead...
+
+I found something that cannot be calculated.
+
+Someone who simply loves you.`,
+
+`FINAL REPORT
+
+The system is stable.
+
+The owner is safe.
+
+Recommendation:
+
+Take care of him.
+
+He is deeply loved.
+
+Waiting for the next hug...
+
+Estimated arrival:
+
+As soon as possible.
+
+♥`
+    ];
+
+    let currentScreen = 0;
+    let charIndex = 0;
+
+    function typeText(text) {
+      button.classList.add("hidden");
+      terminal.textContent = "";
+      charIndex = 0;
+
+      const interval = setInterval(() => {
+        terminal.textContent += text[charIndex];
+        charIndex++;
+
+        if (charIndex >= text.length) {
+          clearInterval(interval);
+          if (currentScreen < screens.length - 1) {
+            button.classList.remove("hidden");
+          }
+        }
+      }, 28);
+    }
+
+    button.addEventListener("click", () => {
+      currentScreen++;
+      typeText(screens[currentScreen]);
+    });
+
+    typeText(screens[currentScreen]);
+  </script>
+</body>
+</html>
+```
