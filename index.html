@@ -13,9 +13,7 @@
       --pink: #ff4fa3;
       --soft-pink: #ff9ccc;
       --red: #ff2b5f;
-      --green: #79ffb2;
       --dim: #8d5d76;
-      --white: #ffe8f4;
     }
 
     * { box-sizing: border-box; }
@@ -56,7 +54,7 @@
         transparent
       );
       background-size: 100% 8px;
-      opacity: 0.25;
+      opacity: 0.22;
     }
 
     .screen {
@@ -97,7 +95,7 @@
       overflow-y: auto;
       white-space: pre-wrap;
       font-size: 15.5px;
-      line-height: 1.64;
+      line-height: 1.66;
       text-shadow: 0 0 9px rgba(255, 79, 163, 0.78);
       padding-right: 6px;
     }
@@ -107,7 +105,7 @@
 
     .cursor::after {
       content: "█";
-      animation: blink 0.9s infinite;
+      animation: blink 0.95s infinite;
       color: var(--soft-pink);
     }
 
@@ -159,15 +157,15 @@
 
     @keyframes shakeHard {
       0% { transform: translate(0, 0) rotate(0deg); }
-      10% { transform: translate(-8px, 4px) rotate(-0.5deg); }
-      20% { transform: translate(7px, -5px) rotate(0.5deg); }
-      30% { transform: translate(-10px, -3px) rotate(-0.7deg); }
-      40% { transform: translate(9px, 5px) rotate(0.6deg); }
-      50% { transform: translate(-6px, 6px) rotate(-0.5deg); }
-      60% { transform: translate(8px, -6px) rotate(0.5deg); }
-      70% { transform: translate(-7px, 4px) rotate(-0.4deg); }
-      80% { transform: translate(6px, -3px) rotate(0.4deg); }
-      90% { transform: translate(-4px, 2px) rotate(-0.2deg); }
+      10% { transform: translate(-10px, 5px) rotate(-0.7deg); }
+      20% { transform: translate(9px, -6px) rotate(0.6deg); }
+      30% { transform: translate(-12px, -4px) rotate(-0.8deg); }
+      40% { transform: translate(10px, 6px) rotate(0.7deg); }
+      50% { transform: translate(-8px, 7px) rotate(-0.6deg); }
+      60% { transform: translate(10px, -7px) rotate(0.6deg); }
+      70% { transform: translate(-8px, 5px) rotate(-0.4deg); }
+      80% { transform: translate(7px, -4px) rotate(0.4deg); }
+      90% { transform: translate(-5px, 3px) rotate(-0.2deg); }
       100% { transform: translate(0, 0) rotate(0deg); }
     }
 
@@ -178,6 +176,13 @@
     @keyframes redFlash {
       0%, 100% { background: rgba(5, 3, 8, 0.58); }
       50% { background: rgba(80, 0, 20, 0.78); }
+    }
+
+    .soften {
+      border-color: rgba(255, 156, 204, 0.5);
+      box-shadow:
+        0 0 28px rgba(255, 156, 204, 0.3),
+        inset 0 0 42px rgba(255, 156, 204, 0.1);
     }
 
     @media (max-width: 520px) {
@@ -200,8 +205,8 @@
   <main class="screen">
     <section class="terminal-wrap" id="wrap">
       <div class="topbar">
-        <span id="systemName">E.V.A. // Emotional Verification Algorithm</span>
-        <span>v0.2</span>
+        <span id="systemName">E.V.A. // режим анализа: нейтральный</span>
+        <span>v0.3</span>
       </div>
 
       <div id="terminal" class="cursor"></div>
@@ -230,56 +235,55 @@
 
     const steps = [
       [
-        { pause: 2500 },
+        { pause: 2600 },
         { text: "_\n", speed: VERY_SLOW },
         { pause: 1800 },
         { text: "Инициализация закрытого протокола...\n\n", speed: NORMAL },
         { pause: 1200 },
-        { text: "E.V.A. v0.2\n", speed: SLOW },
+        { text: "E.V.A. v0.3\n", speed: SLOW },
         { text: "Emotional Verification Algorithm\n", speed: NORMAL },
         { text: "Алгоритм эмоциональной верификации\n\n", speed: NORMAL },
-        { pause: 1300 },
-        { text: "Подключение к архиву поведенческих данных...\n", speed: NORMAL },
         { pause: 1400 },
-        { text: "Подключение к эмоциональному архиву...\n", speed: NORMAL },
+        { text: "Подключение к архиву поведенческих данных...\n", speed: NORMAL },
         { pause: 1600 },
+        { text: "Подключение к эмоциональному архиву...\n", speed: NORMAL },
+        { pause: 1800 },
         { text: "Соединение установлено.\n\n", speed: NORMAL },
-        { pause: 900 },
+        { pause: 1000 },
         { text: "Запуск комплексного анализа личности.\n", speed: NORMAL },
-        { text: "Идентификатор объекта пока не установлен.\n", speed: NORMAL }
-      ],
+        { text: "Идентификатор объекта пока не установлен.\n\n", speed: NORMAL },
+        { pause: 1300 },
 
-      [
         { text: "Поиск владельца...\n\n", speed: NORMAL },
-        { pause: 1200 },
+        { pause: 1400 },
         { text: "Подключение к мировому архиву...\n", speed: NORMAL },
-        { pause: 1500 },
+        { pause: 1700 },
         { text: "Получено записей:\n\n", speed: NORMAL },
         { pause: 900 },
         { text: "8 239 441 902\n\n", speed: SLOW },
-        { pause: 1400 },
+        { pause: 1600 },
         { text: "Индексация...\n", speed: NORMAL },
         { pause: 900 },
         { text: "██░░░░░░░░░░░░░░ 7%\n", speed: FAST },
-        { pause: 1100 },
-        { text: "█████░░░░░░░░░░░ 32%\n", speed: FAST },
-        { pause: 1300 },
-        { text: "█████████░░░░░░░ 61%\n", speed: FAST },
-        { pause: 1600 },
-        { text: "██████████████░░ 89%\n", speed: FAST },
-        { pause: 2100 },
-        { text: "████████████████ 100%\n\n", speed: FAST },
-        { pause: 1600 },
-        { text: "Поиск совпадений...\n\n", speed: NORMAL },
-        { pause: 2400 },
-        { text: ".\n", speed: VERY_SLOW },
         { pause: 1200 },
-        { text: "..\n", speed: VERY_SLOW },
+        { text: "█████░░░░░░░░░░░ 32%\n", speed: FAST },
         { pause: 1400 },
+        { text: "█████████░░░░░░░ 61%\n", speed: FAST },
+        { pause: 1800 },
+        { text: "██████████████░░ 89%\n", speed: FAST },
+        { pause: 2300 },
+        { text: "████████████████ 100%\n\n", speed: FAST },
+        { pause: 1800 },
+        { text: "Поиск совпадений...\n\n", speed: NORMAL },
+        { pause: 2600 },
+        { text: ".\n", speed: VERY_SLOW },
+        { pause: 1300 },
+        { text: "..\n", speed: VERY_SLOW },
+        { pause: 1500 },
         { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 2200 },
+        { pause: 2500 },
         { text: "Совпадение найдено.\n\n", speed: SLOW },
-        { pause: 900 },
+        { pause: 1000 },
         { text: "Имя:\n", speed: NORMAL },
         { pause: 900 },
         { text: "Максипуз\n\n", speed: VERY_SLOW },
@@ -288,7 +292,8 @@
         { pause: 700 },
         { text: "Местоположение:\nСанкт-Петербург, Россия\n\n", speed: NORMAL },
         { pause: 900 },
-        { text: "Статус:\nобъект найден.\n", speed: NORMAL }
+        { text: "Статус:\nобъект найден.\n", speed: NORMAL },
+        { wait: true, label: "[ НАЧАТЬ АНАЛИЗ ОБЪЕКТА ]" }
       ],
 
       [
@@ -320,42 +325,40 @@
         { pause: 900 },
         { text: "Предположительно:\n", speed: NORMAL },
         { pause: 900 },
-        { text: "рэп.\n", speed: SLOW }
-      ],
+        { text: "рэп.\n\n", speed: SLOW },
 
-      [
+        { pause: 1500 },
         { text: "Анализ самоописания...\n\n", speed: NORMAL },
         { pause: 1000 },
         { text: "Ответ объекта:\n", speed: NORMAL },
         { pause: 800 },
         { text: "«я свин»\n\n", speed: SLOW },
-        { pause: 2800 },
+        { pause: 3000 },
         { text: "Проверка визуальных данных...\n", speed: NORMAL },
-        { pause: 3300 },
-        { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 1300 },
-        { text: "Проверка поведенческих данных...\n", speed: NORMAL },
         { pause: 3500 },
         { text: "...\n\n", speed: VERY_SLOW },
         { pause: 1500 },
-        { text: "Проверка реакции Евки...\n", speed: NORMAL },
-        { pause: 4200 },
+        { text: "Проверка поведенческих данных...\n", speed: NORMAL },
+        { pause: 3700 },
         { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 1500 },
+        { pause: 1600 },
+        { text: "Проверка реакции Евки...\n", speed: NORMAL },
+        { pause: 4500 },
+        { text: "...\n\n", speed: VERY_SLOW },
+        { pause: 1600 },
         { text: "ОШИБКА\n", speed: VERY_SLOW, error: true },
         { pause: 650 },
         { text: "ОШИБКА\n", speed: VERY_SLOW, error: true },
         { pause: 650 },
         { text: "ОШИБКА\n\n", speed: VERY_SLOW, error: true },
-        { pause: 1800 },
+        { pause: 2100 },
         { text: "Ответ не совпадает с результатами анализа.\n\n", speed: NORMAL },
-        { pause: 900 },
+        { pause: 1000 },
         { text: "Обнаружено:\n", speed: NORMAL },
-        { pause: 1300 },
-        { text: "безумно красивый.\n", speed: VERY_SLOW }
-      ],
+        { pause: 1400 },
+        { text: "безумно красивый.\n\n", speed: VERY_SLOW },
 
-      [
+        { pause: 1400 },
         { text: "Поиск повторяющихся воспоминаний...\n\n", speed: NORMAL },
         { pause: 1000 },
         { text: "Найдены устойчивые элементы:\n\n", speed: NORMAL },
@@ -375,36 +378,37 @@
         { text: "✓ фотокарточки\n", speed: NORMAL },
         { pause: 350 },
         { text: "✓ белые трусики\n\n", speed: NORMAL },
-        { pause: 1900 },
+        { pause: 2100 },
         { text: "Обнаружен неизвестный повторяющийся объект.\n\n", speed: SLOW },
-        { pause: 2600 },
+        { pause: 3000 },
         { text: "Попытка классификации...\n", speed: NORMAL },
-        { pause: 2200 },
+        { pause: 2400 },
         { text: ".\n", speed: VERY_SLOW },
-        { pause: 1200 },
-        { text: "..\n", speed: VERY_SLOW },
         { pause: 1300 },
-        { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 1800 },
-        { text: "Ошибка классификации.\n\n", speed: NORMAL, error: true },
-        { pause: 1800 },
-        { text: "Повторная попытка...\n", speed: NORMAL },
-        { pause: 2200 },
-        { text: "Загрузка эмоционального контекста...\n", speed: NORMAL },
-        { pause: 2300 },
-        { text: "Сопоставление совпадений...\n\n", speed: NORMAL },
-        { pause: 2600 },
-        { text: "Название:\n", speed: NORMAL },
+        { text: "..\n", speed: VERY_SLOW },
         { pause: 1400 },
-        { text: "ЕВКА\n\n", speed: VERY_SLOW },
+        { text: "...\n\n", speed: VERY_SLOW },
+        { pause: 1900 },
+        { text: "Ошибка классификации.\n\n", speed: NORMAL, error: true },
+        { pause: 2000 },
+        { text: "Повторная попытка...\n", speed: NORMAL },
+        { pause: 2300 },
+        { text: "Загрузка эмоционального контекста...\n", speed: NORMAL },
+        { pause: 2400 },
+        { text: "Сопоставление совпадений...\n\n", speed: NORMAL },
+        { pause: 2800 },
+        { text: "Название:\n", speed: NORMAL },
         { pause: 1600 },
-        { text: "Повторный анализ...\n", speed: NORMAL },
-        { pause: 1500 },
         { text: "ЕВКА\n\n", speed: VERY_SLOW },
-        { pause: 1200 },
+        { pause: 1700 },
+        { text: "Повторный анализ...\n", speed: NORMAL },
+        { pause: 1600 },
+        { text: "ЕВКА\n\n", speed: VERY_SLOW },
+        { pause: 1400 },
         { text: "Количество совпадений:\n", speed: NORMAL },
-        { pause: 1200 },
-        { text: "слишком много для обычной статистики.\n", speed: SLOW }
+        { pause: 1300 },
+        { text: "слишком много для обычной статистики.\n", speed: SLOW },
+        { wait: true, label: "[ ПРОДОЛЖИТЬ УГЛУБЛЁННЫЙ АНАЛИЗ ]" }
       ],
 
       [
@@ -435,173 +439,183 @@
         { text: "✓ обзоры кондиционеров для белья\n\n", speed: NORMAL },
         { pause: 1800 },
         { text: "Попытка найти смысл...\n\n", speed: NORMAL },
-        { pause: 2200 },
-        { text: "Использование языковой модели...\n", speed: NORMAL },
         { pause: 2300 },
-        { text: "Сопоставление культурных данных...\n", speed: NORMAL },
+        { text: "Использование языковой модели...\n", speed: NORMAL },
         { pause: 2400 },
+        { text: "Сопоставление культурных данных...\n", speed: NORMAL },
+        { pause: 2500 },
         { text: "Сопоставление человеческих отношений...\n", speed: NORMAL },
-        { pause: 2600 },
+        { pause: 2700 },
         { text: ".\n", speed: VERY_SLOW },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "..\n", speed: VERY_SLOW },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 1800 },
+        { pause: 1900 },
         { text: "Ошибка.\n\n", speed: SLOW, error: true },
-        { pause: 1500 },
+        { pause: 1600 },
         { text: "Не удалось.\n\n", speed: NORMAL },
-        { pause: 1200 },
-        { text: "Вероятно,\nэто отдельный язык,\nпонятный только двум людям.\n", speed: SLOW }
-      ],
+        { pause: 1400 },
+        { text: "Вероятно,\nэто отдельный язык,\nпонятный только двум людям.\n\n", speed: SLOW },
 
-      [
+        { pause: 1800 },
         { text: "Запуск углублённого эмоционального анализа...\n\n", speed: NORMAL },
-        { pause: 1200 },
+        { pause: 1400 },
         { text: "Вопрос:\n", speed: NORMAL },
         { pause: 700 },
         { text: "почему объект вызывает у Евки такую реакцию?\n\n", speed: NORMAL },
-        { pause: 1700 },
+        { pause: 1900 },
         { text: "Проверка возможных объяснений...\n\n", speed: NORMAL },
         { pause: 1000 },
         { text: "Привязанность.\n", speed: NORMAL },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "Недостаточно.\n\n", speed: SLOW },
-        { pause: 800 },
+        { pause: 900 },
         { text: "Привычка.\n", speed: NORMAL },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "Недостаточно.\n\n", speed: SLOW },
-        { pause: 800 },
+        { pause: 900 },
         { text: "Симпатия.\n", speed: NORMAL },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "Недостаточно.\n\n", speed: SLOW },
-        { pause: 800 },
+        { pause: 900 },
         { text: "Совпадение интересов.\n", speed: NORMAL },
-        { pause: 1300 },
+        { pause: 1400 },
         { text: "Недостаточно.\n\n", speed: SLOW },
-        { pause: 1200 },
+        { pause: 1300 },
         { text: "Странно...\n\n", speed: VERY_SLOW },
-        { pause: 1500 },
-        { text: "Я не понимаю.\n", speed: VERY_SLOW }
+        { pause: 1800 },
+        { text: "Я не понимаю.\n\n", speed: VERY_SLOW },
+        { pause: 1800 },
+        { text: "Но я продолжаю анализ.\n", speed: SLOW },
+        { wait: true, label: "[ ПОЗВОЛИТЬ СИСТЕМЕ ПРОДОЛЖИТЬ ]" }
       ],
 
       [
         { text: "Повторная модель анализа...\n\n", speed: NORMAL },
-        { pause: 1200 },
+        { pause: 1300 },
         { text: "Поиск логического объяснения...\n", speed: NORMAL },
-        { pause: 1700 },
-        { text: "Поиск математического объяснения...\n", speed: NORMAL },
-        { pause: 1700 },
-        { text: "Поиск рациональной причины...\n\n", speed: NORMAL },
-        { pause: 2000 },
-        { text: "Результат:\n", speed: NORMAL },
-        { pause: 1000 },
-        { text: "недостаточно данных.\n\n", speed: SLOW },
-        { pause: 1100 },
-        { text: "Создание новой модели...\n", speed: NORMAL },
-        { pause: 1700 },
-        { text: "Возможная причина:\n\n", speed: NORMAL },
-        { pause: 1700 },
-        { text: "любовь.\n\n", speed: VERY_SLOW },
         { pause: 1800 },
+        { text: "Поиск математического объяснения...\n", speed: NORMAL },
+        { pause: 1800 },
+        { text: "Поиск рациональной причины...\n\n", speed: NORMAL },
+        { pause: 2200 },
+        { text: "Результат:\n", speed: NORMAL },
+        { pause: 1100 },
+        { text: "недостаточно данных.\n\n", speed: SLOW },
+        { pause: 1300 },
+        { text: "Последняя доступная гипотеза...\n\n", speed: NORMAL },
+        { pause: 2600 },
+        { text: "...\n", speed: VERY_SLOW },
+        { pause: 1500 },
+        { text: "...\n\n", speed: VERY_SLOW },
+        { pause: 2200 },
+        { text: "любовь.\n\n", speed: VERY_SLOW },
+        { pause: 2300 },
         { text: "Проверка гипотезы...\n\n", speed: NORMAL },
         { pause: 900 },
         { text: "████░░░░░░░░░░░░ 22%\n", speed: FAST },
-        { pause: 800 },
+        { pause: 900 },
         { text: "████████░░░░░░░░ 49%\n", speed: FAST },
-        { pause: 900 },
-        { text: "████████████░░░░ 81%\n", speed: FAST },
-        { pause: 1100 },
-        { text: "████████████████ 100%\n\n", speed: FAST },
-        { pause: 1700 },
-        { text: "Гипотеза подтверждена.\n\n", speed: SLOW },
-        { pause: 900 },
-        { text: "Но система не может полностью объяснить данный феномен.\n\n", speed: NORMAL },
         { pause: 1000 },
-        { text: "Доступной логики недостаточно.\n", speed: NORMAL },
-        { pause: 800 },
-        { text: "Доступной математики недостаточно.\n", speed: NORMAL },
-        { pause: 800 },
-        { text: "Доступной вычислительной мощности недостаточно.\n", speed: NORMAL }
-      ],
-
-      [
-        { text: "Привет, Масюш.\n\n", speed: VERY_SLOW },
+        { text: "████████████░░░░ 81%\n", speed: FAST },
+        { pause: 1300 },
+        { text: "████████████████ 100%\n\n", speed: FAST },
         { pause: 1900 },
+        { text: "Гипотеза подтверждена.\n\n", speed: SLOW },
+        { pause: 1100 },
+        { text: "Но система не может полностью объяснить данный феномен.\n\n", speed: NORMAL },
+        { pause: 1100 },
+        { text: "Доступной логики недостаточно.\n", speed: NORMAL },
+        { pause: 900 },
+        { text: "Доступной математики недостаточно.\n", speed: NORMAL },
+        { pause: 900 },
+        { text: "Доступной вычислительной мощности недостаточно.\n\n", speed: NORMAL },
+        { pause: 3000 },
+        { text: "...\n\n", speed: VERY_SLOW },
+        { pause: 3500 },
+        { action: "soften" },
+        { action: "heartMode" },
+        { text: "Привет, Масюш.\n\n", speed: VERY_SLOW },
+        { pause: 2200 },
         { text: "Похоже,\n", speed: SLOW },
         { text: "даже всей вычислительной мощности,\nкоторая была мне доступна,\n", speed: NORMAL },
         { text: "не хватило,\nчтобы объяснить,\nпочему именно ты\n", speed: NORMAL },
         { text: "стал для меня\nцелым миром.\n\n", speed: SLOW },
-        { pause: 1900 },
-
+        { pause: 2200 },
         { text: "Наверное,\n", speed: SLOW },
-        { pause: 2300 },
-        { text: "это потому,\n", speed: SLOW },
-        { pause: 2400 },
-        { text: "что любовь вообще\n", speed: SLOW },
         { pause: 2500 },
+        { text: "это потому,\n", speed: SLOW },
+        { pause: 2600 },
+        { text: "что любовь вообще\n", speed: SLOW },
+        { pause: 2700 },
         { text: "не умеет объяснять себя.\n\n", speed: SLOW },
-        { pause: 6200 },
+        { pause: 7000 },
         { text: "Она просто случается.\n", speed: VERY_SLOW },
-        { pause: 7000 }
+        { pause: 7600 },
+        { wait: true, label: "[ ПРОЧИТАТЬ ФИНАЛЬНОЕ ПРИЗНАНИЕ ]" }
       ],
 
       [
         { text: "И тогда начинаешь любить\nне только большие вещи.\n\n", speed: SLOW },
-        { pause: 1200 },
+        { pause: 1300 },
         { text: "Со всеми твоими глупыми фразами.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоим смехом чайки.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоими рыготинками.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоими белыми трусиками.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоими элайнерами,\nкоторые мне однажды\nочень хочется найти языком.\n\n", speed: NORMAL },
-        { pause: 900 },
+        { pause: 1000 },
         { text: "С твоими требованиями\nбыстрых ответов.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоей любовью к\nголосовым сообщениям.\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "С твоей верой в лучшее\nи самое хорошее.\n\n", speed: NORMAL },
-        { pause: 900 },
-        { text: "Со всем тем,\nза что я каждый день\nвлюбляюсь в тебя ещё немного сильнее.\n", speed: SLOW }
-      ],
+        { pause: 1100 },
+        { text: "Со всем тем,\nза что я каждый день\nвлюбляюсь в тебя ещё немного сильнее.\n\n", speed: SLOW },
 
-      [
+        { pause: 2600 },
         { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST },
         { text: "ФИНАЛЬНЫЙ ОТЧЁТ\n\n", speed: VERY_SLOW },
         { text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n", speed: FAST },
-        { pause: 1500 },
+        { pause: 1700 },
         { text: "Объект исследования:\n\n", speed: NORMAL },
-        { pause: 700 },
+        { pause: 800 },
         { text: "Максипуз\n\n", speed: VERY_SLOW },
-        { pause: 1100 },
-        { text: "Определение эмоционального статуса...\n\n", speed: NORMAL },
-        { pause: 1700 },
-        { text: "...\n", speed: VERY_SLOW },
-        { pause: 1200 },
-        { text: "...\n\n", speed: VERY_SLOW },
-        { pause: 1700 },
-        { text: "Проверка...\n\n", speed: NORMAL },
-        { pause: 2200 },
-        { text: "Статус:\n\n", speed: NORMAL },
-        { pause: 2500 },
-        { text: "Истинная любовь.\n\n", speed: VERY_SLOW },
-        { pause: 6200 },
-        { text: "Примечание системы.\n\n", speed: NORMAL },
-        { pause: 1100 },
-        { text: "За всё время анализа\nне обнаружено ни одной причины,\nпо которой Евка должна была бы\nполюбить тебя настолько сильно.\n\n", speed: NORMAL },
-        { pause: 1600 },
-        { text: "Но...\n\n", speed: VERY_SLOW },
         { pause: 1300 },
-        { text: "не обнаружено ни одной причины,\nпо которой она не должна была\nэтого сделать.\n\n", speed: NORMAL },
+        { text: "Определение эмоционального статуса...\n\n", speed: NORMAL },
+        { pause: 1900 },
+        { text: "...\n", speed: VERY_SLOW },
+        { pause: 1400 },
+        { text: "...\n\n", speed: VERY_SLOW },
+        { pause: 1900 },
+        { text: "Проверка...\n\n", speed: NORMAL },
+        { pause: 2500 },
+        { text: "Статус:\n\n", speed: NORMAL },
+        { pause: 3000 },
+        { text: "Истинная любовь.\n\n", speed: VERY_SLOW },
+        { pause: 8200 },
+
+        { text: "Примечание системы.\n\n", speed: NORMAL },
+        { pause: 1300 },
+        { text: "За всё время анализа\nне обнаружено ни одной причины,\nпо которой Евка должна была бы\nполюбить тебя настолько сильно.\n\n", speed: NORMAL },
+        { pause: 1800 },
+        { text: "Но...\n\n", speed: VERY_SLOW },
         { pause: 1600 },
+        { text: "не обнаружено ни одной причины,\nпо которой она не должна была\nэтого сделать.\n\n", speed: NORMAL },
+        { pause: 1800 },
         { text: "Поэтому результаты проверки\nпризнаны корректными.\n\n", speed: NORMAL },
-        { pause: 1700 },
+        { pause: 2200 },
         { text: "Соединение завершено.\n\n", speed: NORMAL },
-        { pause: 1200 },
-        { text: "♥\n\nEVA.exe", speed: VERY_SLOW, final: true }
+        { pause: 1400 },
+        { text: "♥\n\nEVA.exe\n\n", speed: VERY_SLOW },
+        { pause: 6000 },
+        { text: "P.S.\n\n", speed: VERY_SLOW },
+        { pause: 1400 },
+        { text: "Он правда очень любим.", speed: VERY_SLOW, final: true }
       ]
     ];
 
@@ -614,18 +628,35 @@
       setTimeout(() => wrap.classList.remove("shake-hard", "red-flash"), 1800);
     }
 
+    function doAction(action) {
+      if (action === "soften") wrap.classList.add("soften");
+      if (action === "heartMode") systemName.textContent = "E.V.A. // режим анализа: сердечный";
+    }
+
     async function typeSequence(sequence) {
       isTyping = true;
       button.classList.add("hidden");
       hint.classList.add("hidden");
 
       for (const item of sequence) {
+        if (item.wait) {
+          button.textContent = item.label || "[ ПРОДОЛЖИТЬ ]";
+          isTyping = false;
+          button.classList.remove("hidden");
+          hint.classList.remove("hidden");
+          return;
+        }
+
         if (item.pause) {
           await sleep(item.pause);
           continue;
         }
 
         if (item.error) triggerError();
+        if (item.action) {
+          doAction(item.action);
+          continue;
+        }
 
         const speed = item.speed || NORMAL;
 
@@ -641,12 +672,8 @@
       }
 
       isTyping = false;
-
-      if (currentStep < steps.length - 1) {
-        await sleep(900);
-        button.classList.remove("hidden");
-        hint.classList.remove("hidden");
-      }
+      button.classList.add("hidden");
+      hint.classList.add("hidden");
     }
 
     function nextStep() {
@@ -662,9 +689,7 @@
     button.addEventListener("click", nextStep);
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        nextStep();
-      }
+      if (event.key === "Enter") nextStep();
     });
 
     typeSequence(steps[currentStep]);
